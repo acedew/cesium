@@ -333,16 +333,15 @@ define([
             texturePixelError = 1.0;
         }
 
-        //var dmin = layer._minTileDistance(tile.zoom, texturePixelError);
-
         var toCenter = boundingVolume.center.subtract(cameraPosition);
-        var distance = toCenter.dot(direction) - boundingVolume.radius;
+        var distance = toCenter.magnitude() - boundingVolume.radius;
 
         // If we're inside the bounding sphere, always refine.
-        if (distance < 0.0)
+        if (distance <= 0.0) {
             return true;
+        }
 
-        var tileVerticesPerDirection = 128;
+        var tileVerticesPerDirection = 32;
 
         var west = tile.extent.west;
         var east = tile.extent.west + (tile.extent.east - tile.extent.west) / (tileVerticesPerDirection - 1);
@@ -383,10 +382,6 @@ define([
         var screenSpaceError = (geometricError * viewportHeight) / (2 * distance * Math.tan(0.5 * fovy));
 
         var result = screenSpaceError > 1.0;
-        if (typeof tile._lastRefineDecision === 'undefined') {
-            console.log('level: ' + tile.zoom + ' y: ' + tile.y + ' error: ' + geometricError);
-        }
-        tile._lastRefineDecision = result;
         return result;
     }
 
@@ -641,7 +636,8 @@ define([
             var rtc = tile.get3DBoundingSphere().center;
             var projectedRTC = tile.get2DBoundingSphere(projection).center.clone();
 
-            var gran = (tile.zoom > 0) ? 0.05 * (1.0 / tile.zoom * 2.0) : 0.05; // seems like a good value after testing it for what looks good
+            var tileVerticesPerDirection = 32;
+            var gran = (tile.extent.east - tile.extent.west) / (tileVerticesPerDirection - 1);
 
             var typedArray;
             var buffer;
