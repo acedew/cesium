@@ -333,17 +333,61 @@ define([
             texturePixelError = 1.0;
         }
 
-        var dmin = layer._minTileDistance(tile.zoom, texturePixelError);
+        //var dmin = layer._minTileDistance(tile.zoom, texturePixelError);
 
         var toCenter = boundingVolume.center.subtract(cameraPosition);
-        var toSphere = toCenter.normalize().multiplyWithScalar(toCenter.magnitude() - boundingVolume.radius);
-        var distance = direction.multiplyWithScalar(direction.dot(toSphere)).magnitude();
+        var distance = toCenter.dot(direction) - boundingVolume.radius;
 
-        if (distance > 0.0 && distance < dmin) {
+        // If we're inside the bounding sphere, always refine.
+        if (distance < 0.0)
             return true;
+
+        var tileVerticesPerDirection = 128;
+
+        var west = tile.extent.west;
+        var east = tile.extent.west + (tile.extent.east - tile.extent.west) / (tileVerticesPerDirection - 1);
+
+        // Grab the tile latitude closest to zero.
+        var latitude;
+        if (tile.extent.north >= 0.0 && tile.extent.south <= 0.0) {
+            latitude = 0.0;
+        } else if (tile.extent.north > 0.0) {
+            latitude = tile.extent.south;
+        } else {
+            latitude = tile.extent.north;
         }
 
-        return false;
+        // Linearly interpolate between the east and west points.
+        var ellipsoid = tile.tilingScheme.ellipsoid;
+        var westPosition = ellipsoid.toCartesian(new Cartographic2(west, latitude));
+        var eastPosition = ellipsoid.toCartesian(new Cartographic2(east, latitude));
+
+        var interpolatedPosition = new Cartesian3(
+                (eastPosition.x - westPosition.x) * 0.5 + westPosition.x,
+                (eastPosition.y - westPosition.y) * 0.5 + westPosition.y,
+                (eastPosition.z - westPosition.z) * 0.5 + westPosition.z);
+
+        // The 'latitude' parallel forms a circle (assuming the ellipsoid is actually a spheroid).
+        // The geometric error is the difference between the interpolated position
+        // and the edge of the circle.
+        // TODO: extend to general ellipsoids, not just spheroids.
+        var circleRadius = Math.sqrt(westPosition.x * westPosition.x + westPosition.y * westPosition.y);
+        var geometricError = circleRadius - Math.sqrt(interpolatedPosition.x * interpolatedPosition.x + interpolatedPosition.y * interpolatedPosition.y);
+
+        var viewport = context.getViewport();
+        var viewportHeight = viewport.height;
+
+        var frustum = sceneState.camera.frustum;
+        var fovy = frustum.fovy;
+
+        var screenSpaceError = (geometricError * viewportHeight) / (2 * distance * Math.tan(0.5 * fovy));
+
+        var result = screenSpaceError > 1.0;
+        if (typeof tile._lastRefineDecision === 'undefined') {
+            console.log('level: ' + tile.zoom + ' y: ' + tile.y + ' error: ' + geometricError);
+        }
+        tile._lastRefineDecision = result;
+        return result;
     }
 
     function refine2D(layer, tile, context, sceneState) {

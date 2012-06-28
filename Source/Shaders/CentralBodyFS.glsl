@@ -1,3 +1,4 @@
+#define SHOW_TILE_BOUNDARIES
 uniform sampler2D u_dayTexture;
 
 varying vec3 v_positionMC;

@@ -14,23 +14,23 @@ require({
 
     var cb = new Cesium.CentralBody(ellipsoid);
 
-    var aerial = new Cesium.ImageryLayer(cb, new Cesium.BingMapsTileProvider({
-        server : 'dev.virtualearth.net',
-        mapStyle : Cesium.BingMapsStyle.AERIAL,
-        // Some versions of Safari support WebGL, but don't correctly implement
-        // cross-origin image loading, so we need to load Bing imagery using a proxy.
-        proxy : Cesium.FeatureDetection.supportsCrossOriginImagery() ? undefined : new Cesium.DefaultProxy('/proxy/')
-    }));
-    cb.getImageLayers().add(aerial);
-
-    var road = new Cesium.ImageryLayer(cb, new Cesium.BingMapsTileProvider({
-        server : 'dev.virtualearth.net',
-        mapStyle : Cesium.BingMapsStyle.ROAD,
-        // Some versions of Safari support WebGL, but don't correctly implement
-        // cross-origin image loading, so we need to load Bing imagery using a proxy.
-        proxy : Cesium.FeatureDetection.supportsCrossOriginImagery() ? undefined : new Cesium.DefaultProxy('/proxy/')
-    }));
-    cb.getImageLayers().add(road);
+//    var aerial = new Cesium.ImageryLayer(cb, new Cesium.BingMapsTileProvider({
+//        server : 'dev.virtualearth.net',
+//        mapStyle : Cesium.BingMapsStyle.AERIAL,
+//        // Some versions of Safari support WebGL, but don't correctly implement
+//        // cross-origin image loading, so we need to load Bing imagery using a proxy.
+//        proxy : Cesium.FeatureDetection.supportsCrossOriginImagery() ? undefined : new Cesium.DefaultProxy('/proxy/')
+//    }));
+//    cb.getImageLayers().add(aerial);
+//
+//    var road = new Cesium.ImageryLayer(cb, new Cesium.BingMapsTileProvider({
+//        server : 'dev.virtualearth.net',
+//        mapStyle : Cesium.BingMapsStyle.ROAD,
+//        // Some versions of Safari support WebGL, but don't correctly implement
+//        // cross-origin image loading, so we need to load Bing imagery using a proxy.
+//        proxy : Cesium.FeatureDetection.supportsCrossOriginImagery() ? undefined : new Cesium.DefaultProxy('/proxy/')
+//    }));
+//    cb.getImageLayers().add(road);
 
     var esri = new Cesium.ImageryLayer(cb, new Cesium.ArcGISMapServerTileProvider({
         url : 'http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
