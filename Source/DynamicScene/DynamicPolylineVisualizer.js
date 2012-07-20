@@ -3,12 +3,14 @@ define([
         '../Core/DeveloperError',
         '../Core/destroyObject',
         '../Core/Color',
-        '../Scene/Polyline'
+        '../Scene/Polyline',
+        '../Core/Transforms'
        ], function(
          DeveloperError,
          destroyObject,
          Color,
-         Polyline) {
+         Polyline,
+         Transforms) {
     "use strict";
 
     /**
@@ -218,6 +220,12 @@ define([
         }
 
         polyline.show = true;
+
+        if(typeof time !== 'undefined') {
+            if(dynamicObject.id.indexOf("Orbit") != -1 || dynamicObject.id.indexOf("Track") != -1 || dynamicObject.id.indexOf("track") != -1) {
+                polyline.modelMatrix = Transforms.computeTemeToPseudoFixedMatrix(time);
+            }
+        }
 
         var vertexPositions = vertexPositionsProperty.getValueCartesian(time);
         if (typeof vertexPositions !== 'undefined' && polyline._visualizerPositions !== vertexPositions) {

@@ -307,9 +307,10 @@ if (oldContents !== contents) {
 		<!-- create relative paths because r.js can't handle full Windows paths -->
 		<property name="relativeAlmondPath" location="${almondPath}" relative="true" basedir="${sourceDirectory}" />
 		<property name="relativeCesiumFilePath" location="${buildDirectory}\temp.js" relative="true" basedir="${sourceDirectory}" />
-
+	    <property name="relativeRjsPath" location="${rjsPath}" relative ="true" basedir="${sourceDirectory}"/>
+		
 		<exec executable="${nodePath}" dir="${sourceDirectory}">
-			<arg line="${rjsPath} -o optimize=${optimize} wrap=true baseUrl=. name=${relativeAlmondPath} include=main out=${relativeCesiumFilePath}" />
+			<arg line="${relativeRjsPath} -o optimize=${optimize} wrap=true baseUrl=. name=${relativeAlmondPath} include=main out=${relativeCesiumFilePath}" />
 		</exec>
 
 		<concat destfile="${builtCesiumFile}">

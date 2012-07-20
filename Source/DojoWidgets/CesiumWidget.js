@@ -22,6 +22,7 @@ define([
         '../Scene/BingMapsStyle',
         '../Scene/SingleTileProvider',
         '../Scene/PerformanceDisplay',
+        '../Core/Transforms',
         'dojo/text!./CesiumWidget.html'
     ], function (
         require,
@@ -46,6 +47,7 @@ define([
         BingMapsStyle,
         SingleTileProvider,
         PerformanceDisplay,
+        Transforms,
         template) {
     "use strict";
 
@@ -301,6 +303,11 @@ define([
         render : function(time) {
             var scene = this.scene;
             scene.setSunPosition(SunPosition.compute(time).position);
+            if(scene.mode == 2) {
+                if(typeof time !== "undefined") {
+                    scene.getCamera().transform = Transforms.computeTemeToPseudoFixedMatrix(time);
+                }
+            }
             scene.render();
         },
 
